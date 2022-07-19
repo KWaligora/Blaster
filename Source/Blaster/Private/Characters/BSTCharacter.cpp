@@ -1,7 +1,11 @@
 #include "Characters/BSTCharacter.h"
 
+#include "UCharacterCrowdAgentInterface.h"
 #include "Camera/CameraComponent.h"
+#include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Navigation/CrowdManager.h"
 
 ABSTCharacter::ABSTCharacter()
 {
@@ -15,6 +19,12 @@ ABSTCharacter::ABSTCharacter()
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FolowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+
+	bUseControllerRotationYaw = false;
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
+	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
+	OverheadWidget->SetupAttachment(RootComponent);
 }
 
 void ABSTCharacter::BeginPlay()
@@ -26,7 +36,6 @@ void ABSTCharacter::BeginPlay()
 void ABSTCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void ABSTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -69,6 +78,6 @@ void ABSTCharacter::Turn(float Value)
 
 void ABSTCharacter::LookUp(float Value)
 {
-	AddControllerRollInput(Value);
+	AddControllerPitchInput(Value);
 }
 

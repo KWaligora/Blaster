@@ -11,7 +11,7 @@ class BLASTER_API ABSTCharacter : public ACharacter
 
 public:
 	ABSTCharacter();
-
+	
 protected:
 	virtual void BeginPlay() override;	
 	virtual void Tick(float DeltaTime) override;
@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Camera")
 	class UCameraComponent* FollowCamera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	class UWidgetComponent* OverheadWidget;
+
 	/*========================================================================
 	 * *                         Movement
 	 *  ==========================================================================*/
@@ -35,4 +38,9 @@ protected:
 	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
+
+
+private:
+	UPROPERTY(VisibleAnywhere)
+	class UUCharacterCrowdAgentInterface* CrowdAgentInterface;
 };
