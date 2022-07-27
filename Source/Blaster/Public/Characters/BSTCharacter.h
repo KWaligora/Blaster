@@ -11,10 +11,12 @@ class BLASTER_API ABSTCharacter : public ACharacter
 
 public:
 	ABSTCharacter();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	
 protected:
 	virtual void BeginPlay() override;	
 	virtual void Tick(float DeltaTime) override;
+	virtual void PostInitializeComponents() override;
 	
 	/*========================================================================
 	 * *                         Components
@@ -29,6 +31,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	class UWidgetComponent* OverheadWidget;
 
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
+	class ABSTWeapon* OverlappingWeapon;
+	
+	UPROPERTY()
+	class UBSTCombatComponent* CombatComponent;
+
 	/*========================================================================
 	 * *                         Movement
 	 *  ==========================================================================*/
@@ -38,9 +46,12 @@ protected:
 	void MoveRight(float Value);
 	void Turn(float Value);
 	void LookUp(float Value);
+	void EquipButtonPressed();
 
+public:
+	void SetOverlappingWeapon(ABSTWeapon* Weapon);
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	class UUCharacterCrowdAgentInterface* CrowdAgentInterface;
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(ABSTWeapon* LastWeapon);
 };

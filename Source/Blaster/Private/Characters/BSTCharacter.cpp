@@ -1,11 +1,12 @@
 #include "Characters/BSTCharacter.h"
 
-#include "UCharacterCrowdAgentInterface.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "Navigation/CrowdManager.h"
+#include "Net/UnrealNetwork.h"
+#include "Weapon/BSTWeapon.h"
+#include "Components/BSTCombatComponent.h"
 
 ABSTCharacter::ABSTCharacter()
 {
@@ -25,6 +26,16 @@ ABSTCharacter::ABSTCharacter()
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
+
+	CombatComponent = CreateDefaultSubobject<UBSTCombatComponent>(TEXT("CombatComponent"));
+	CombatComponent->SetIsReplicated(true);
+}
+
+void ABSTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ABSTCharacter, OverlappingWeapon, COND_OwnerOnly);
 }
 
 void ABSTCharacter::BeginPlay()
@@ -38,11 +49,22 @@ void ABSTCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABSTCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->BSTCharacter = this;
+	}
+}
+
 void ABSTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABSTCharacter::EquipButtonPressed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &ThisClass::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ThisClass::MoveRight);
@@ -81,3 +103,37 @@ void ABSTCharacter::LookUp(float Value)
 	AddControllerPitchInput(Value);
 }
 
+void ABSTCharacter::EquipButtonPressed()
+{
+	
+}
+
+void ABSTCharacter::SetOverlappingWeapon(ABSTWeapon* Weapon)
+{
+	if (OverlappingWeapon != nullptr)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	
+	OverlappingWeapon = Weapon;
+	if (IsLocallyControlled())
+	{
+		if (OverlappingWeapon != nullptr)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
+}
+
+void ABSTCharacter::OnRep_OverlappingWeapon(ABSTWeapon* LastWeapon)
+{
+	if (OverlappingWeapon != nullptr)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+
+	if (LastWeapon != nullptr)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+}
