@@ -48,6 +48,9 @@ protected:
 	void LookUp(float Value);
 	void EquipButtonPressed();
 
+	UFUNCTION(Server, Reliable)
+	void ServerEquipButtonPressed();
+
 public:
 	void SetOverlappingWeapon(ABSTWeapon* Weapon);
 

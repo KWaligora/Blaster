@@ -6,6 +6,7 @@
 #include "Characters/BSTCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
+#include "Net/UnrealNetwork.h"
 
 ABSTWeapon::ABSTWeapon()
 {
@@ -81,4 +82,33 @@ void ABSTWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AA
 	{
 		BSTCharacter->SetOverlappingWeapon(nullptr);
 	}
+}
+
+void ABSTWeapon::SetWeaponState(EWeaponState State)
+{
+	WeaponState = State;
+	switch (WeaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+		AreaSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		break;
+	}
+}
+
+void ABSTWeapon::OnRep_WeaponState()
+{
+	switch (WeaponState)
+	{
+	case EWeaponState::EWS_Equipped:
+		ShowPickupWidget(false);
+		break;
+	}
+}
+
+void ABSTWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABSTWeapon, WeaponState);
 }

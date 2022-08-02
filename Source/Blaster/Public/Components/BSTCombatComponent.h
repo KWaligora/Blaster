@@ -14,13 +14,15 @@ class BLASTER_API UBSTCombatComponent : public UActorComponent
 	
 public:	
 	UBSTCombatComponent();
+	
+	void EquipWeapon(class ABSTWeapon* WeaponToEquip);
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY()
-	class ABSTCharacter* BSTCharacter;
+	ABSTCharacter* BSTCharacter;
 	UPROPERTY()
-	class ABSTWeapon* Weapon;
+	class ABSTWeapon* EquippedWeapon;
 };

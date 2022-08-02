@@ -105,7 +105,25 @@ void ABSTCharacter::LookUp(float Value)
 
 void ABSTCharacter::EquipButtonPressed()
 {
-	
+	if (CombatComponent != nullptr)
+	{
+		if (HasAuthority())
+		{
+			CombatComponent->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
+	}
+}
+
+void ABSTCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->EquipWeapon(OverlappingWeapon);
+	}
 }
 
 void ABSTCharacter::SetOverlappingWeapon(ABSTWeapon* Weapon)
