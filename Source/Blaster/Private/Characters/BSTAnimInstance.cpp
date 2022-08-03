@@ -36,4 +36,5 @@ void UBSTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	bWeaponEquipped = BSTCharacter->IsWeaponEquipped();
 	bIsCrouched = BSTCharacter->bIsCrouched;
+	bAiming = BSTCharacter->IsAiming();
 }

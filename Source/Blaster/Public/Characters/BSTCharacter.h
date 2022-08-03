@@ -49,6 +49,8 @@ protected:
 	void EquipButtonPressed();
 	void CrouchButtonPressed();
 	void CrouchButtonRelease();
+	void AimButtonPressed();
+	void AimButtonRelease();
 	/*===================================================================*/
 	
 	UFUNCTION(Server, Reliable)
@@ -57,6 +59,7 @@ protected:
 public:
 	void SetOverlappingWeapon(ABSTWeapon* Weapon);
 	bool IsWeaponEquipped();
+	bool IsAiming();
 	
 private:
 	UFUNCTION()

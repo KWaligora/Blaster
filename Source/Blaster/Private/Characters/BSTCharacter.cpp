@@ -69,6 +69,8 @@ void ABSTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ABSTCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABSTCharacter::CrouchButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ABSTCharacter::CrouchButtonRelease);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABSTCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABSTCharacter::AimButtonRelease);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &ThisClass::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ThisClass::MoveRight);
@@ -132,6 +134,22 @@ void ABSTCharacter::CrouchButtonRelease()
 	UnCrouch();
 }
 
+void ABSTCharacter::AimButtonPressed()
+{
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->SetAiming(true);
+	}
+}
+
+void ABSTCharacter::AimButtonRelease()
+{
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->SetAiming(false);
+	}
+}
+
 void ABSTCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (CombatComponent != nullptr)
@@ -172,9 +190,10 @@ void ABSTCharacter::OnRep_OverlappingWeapon(ABSTWeapon* LastWeapon)
 
 bool ABSTCharacter::IsWeaponEquipped()
 {
-	if (CombatComponent != nullptr && CombatComponent->EquippedWeapon != nullptr)
-	{
-		return true;
-	}
-	return false;
+	return (CombatComponent != nullptr && CombatComponent->EquippedWeapon != nullptr);
+}
+
+bool ABSTCharacter::IsAiming()
+{
+	return  (CombatComponent != nullptr && CombatComponent->bAiming);
 }

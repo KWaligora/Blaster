@@ -16,6 +16,7 @@ void UBSTCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& 
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UBSTCombatComponent, EquippedWeapon);
+	DOREPLIFETIME(UBSTCombatComponent, bAiming);
 }
 
 void UBSTCombatComponent::EquipWeapon(ABSTWeapon* WeaponToEquip)
@@ -37,4 +38,18 @@ void UBSTCombatComponent::EquipWeapon(ABSTWeapon* WeaponToEquip)
 void UBSTCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void UBSTCombatComponent::SetAiming(bool bIsAiming)
+{
+	bAiming = bIsAiming;
+	if (!BSTCharacter->HasAuthority())
+	{
+		Server_SetAiming(bIsAiming);
+	}
+}
+
+void UBSTCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)
+{
+	bAiming = bIsAiming;
 }

@@ -20,6 +20,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	void SetAiming(bool bIsAiming);
+	
+	UFUNCTION(Server, Reliable)
+	void Server_SetAiming(bool bIsAiming);
 
 private:
 	UPROPERTY()
@@ -27,4 +31,7 @@ private:
 	
 	UPROPERTY(Replicated)
 	class ABSTWeapon* EquippedWeapon;
+
+	UPROPERTY(Replicated)
+	bool bAiming;
 };
