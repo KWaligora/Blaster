@@ -33,4 +33,7 @@ void UBSTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 	bFalling = MovementComponent->IsFalling();
 	bIsAccelerating = MovementComponent->GetCurrentAcceleration().Size() > 0.0f;
+
+	bWeaponEquipped = BSTCharacter->IsWeaponEquipped();
+	bIsCrouched = BSTCharacter->bIsCrouched;
 }

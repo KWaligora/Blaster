@@ -3,11 +3,19 @@
 #include "Characters/BSTCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "Net/UnrealNetwork.h"
 #include "Weapon/BSTWeapon.h"
 
 UBSTCombatComponent::UBSTCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+}
+
+void UBSTCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UBSTCombatComponent, EquippedWeapon);
 }
 
 void UBSTCombatComponent::EquipWeapon(ABSTWeapon* WeaponToEquip)

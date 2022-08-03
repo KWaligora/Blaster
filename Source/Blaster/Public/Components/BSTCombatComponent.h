@@ -15,6 +15,7 @@ class BLASTER_API UBSTCombatComponent : public UActorComponent
 public:	
 	UBSTCombatComponent();
 	
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void EquipWeapon(class ABSTWeapon* WeaponToEquip);
 
 protected:
@@ -23,6 +24,7 @@ protected:
 private:
 	UPROPERTY()
 	ABSTCharacter* BSTCharacter;
-	UPROPERTY()
+	
+	UPROPERTY(Replicated)
 	class ABSTWeapon* EquippedWeapon;
 };

@@ -47,13 +47,17 @@ protected:
 	void Turn(float Value);
 	void LookUp(float Value);
 	void EquipButtonPressed();
-
+	void CrouchButtonPressed();
+	void CrouchButtonRelease();
+	/*===================================================================*/
+	
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
 
 public:
 	void SetOverlappingWeapon(ABSTWeapon* Weapon);
-
+	bool IsWeaponEquipped();
+	
 private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(ABSTWeapon* LastWeapon);
