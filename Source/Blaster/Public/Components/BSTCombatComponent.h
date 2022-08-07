@@ -25,13 +25,22 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void Server_SetAiming(bool bIsAiming);
 
+	UFUNCTION()
+	void OnRep_EquippedWeapon();
+
 private:
 	UPROPERTY()
 	ABSTCharacter* BSTCharacter;
 	
-	UPROPERTY(Replicated)
+	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	class ABSTWeapon* EquippedWeapon;
-
+	
 	UPROPERTY(Replicated)
 	bool bAiming;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float BaseWalkSpeed;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	float AimWalkSpeed;
 };

@@ -1,14 +1,17 @@
 #include "Components/BSTCombatComponent.h"
 
 #include "Characters/BSTCharacter.h"
-#include "Components/SphereComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BSTWeapon.h"
 
 UBSTCombatComponent::UBSTCombatComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
+
+	BaseWalkSpeed = 600.0f;
+	AimWalkSpeed = 450.0f;
 }
 
 void UBSTCombatComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -33,11 +36,18 @@ void UBSTCombatComponent::EquipWeapon(ABSTWeapon* WeaponToEquip)
 		HandSocket->AttachActor(WeaponToEquip, BSTCharacter->GetMesh());
 	}
 	EquippedWeapon->SetOwner(BSTCharacter);
+	BSTCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+	BSTCharacter->bUseControllerRotationYaw = true;
 }
 
 void UBSTCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (BSTCharacter)
+	{
+		BSTCharacter->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+	}
 }
 
 void UBSTCombatComponent::SetAiming(bool bIsAiming)
@@ -46,6 +56,15 @@ void UBSTCombatComponent::SetAiming(bool bIsAiming)
 	if (!BSTCharacter->HasAuthority())
 	{
 		Server_SetAiming(bIsAiming);
+	}
+}
+
+void UBSTCombatComponent::OnRep_EquippedWeapon()
+{
+	if (EquippedWeapon && BSTCharacter)
+	{
+		BSTCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
+		BSTCharacter->bUseControllerRotationYaw = true;
 	}
 }
 
