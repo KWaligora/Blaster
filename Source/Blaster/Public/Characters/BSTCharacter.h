@@ -34,7 +34,7 @@ protected:
 	UPROPERTY(ReplicatedUsing = OnRep_OverlappingWeapon)
 	class ABSTWeapon* OverlappingWeapon;
 	
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere)
 	class UBSTCombatComponent* CombatComponent;
 
 	/*========================================================================
@@ -51,6 +51,7 @@ protected:
 	void CrouchButtonRelease();
 	void AimButtonPressed();
 	void AimButtonRelease();
+	void AimOffset(float DeltaTime);
 	/*===================================================================*/
 	
 	UFUNCTION(Server, Reliable)
@@ -60,8 +61,15 @@ public:
 	void SetOverlappingWeapon(ABSTWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
+	ABSTWeapon* GetEqquipedWeapon();
+	FORCEINLINE float GetAO_YAW() const {return AO_Yaw;}
+	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	
 private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(ABSTWeapon* LastWeapon);
+
+	float AO_Yaw;
+	float AO_Pitch;
+	FRotator StartingAimRotation;
 };

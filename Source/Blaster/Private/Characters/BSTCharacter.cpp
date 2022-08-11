@@ -7,6 +7,8 @@
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BSTWeapon.h"
 #include "Components/BSTCombatComponent.h"
+#include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 ABSTCharacter::ABSTCharacter()
 {
@@ -31,6 +33,8 @@ ABSTCharacter::ABSTCharacter()
 	CombatComponent->SetIsReplicated(true);
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 }
 
 void ABSTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -49,6 +53,8 @@ void ABSTCharacter::BeginPlay()
 void ABSTCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	AimOffset(DeltaTime);
 }
 
 void ABSTCharacter::PostInitializeComponents()
@@ -150,6 +156,42 @@ void ABSTCharacter::AimButtonRelease()
 	}
 }
 
+void ABSTCharacter::AimOffset(float DeltaTime)
+{
+	if (CombatComponent != nullptr && CombatComponent->EquippedWeapon == nullptr)
+	{
+		return;
+	}
+	
+	FVector Velocity = GetVelocity();
+	Velocity.Z = 0;
+	float Speed = Velocity.Size();
+	bool bIsInAir = GetCharacterMovement()->IsFalling();
+
+	if (Speed == 0.0f && !bIsInAir)
+	{
+		FRotator CurrentAimRotation = FRotator(0.0f, GetBaseAimRotation().Yaw, 0.0);
+		FRotator DeltaAimRotation = UKismetMathLibrary::NormalizedDeltaRotator(CurrentAimRotation, StartingAimRotation);
+		AO_Yaw = DeltaAimRotation.Yaw;
+		bUseControllerRotationYaw = false;
+	}
+
+	if (Speed > 0.0f || bIsInAir)
+	{
+		StartingAimRotation = FRotator(0.0f, GetBaseAimRotation().Yaw, 0.0);
+		AO_Yaw = 0.0f;
+		bUseControllerRotationYaw = true;
+	}
+
+	AO_Pitch = GetBaseAimRotation().Pitch;
+	if (AO_Pitch > 90.0f && !IsLocallyControlled())
+	{
+		FVector2D InRange(270.0f, 360.0f);
+		FVector2D OutRange(-90.0f, 0.0f);
+		AO_Pitch = FMath::GetMappedRangeValueClamped(InRange, OutRange, AO_Pitch);
+	}
+}
+
 void ABSTCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (CombatComponent != nullptr)
@@ -196,4 +238,13 @@ bool ABSTCharacter::IsWeaponEquipped()
 bool ABSTCharacter::IsAiming()
 {
 	return  (CombatComponent != nullptr && CombatComponent->bAiming);
+}
+
+ABSTWeapon* ABSTCharacter::GetEqquipedWeapon()
+{
+	if (CombatComponent != nullptr)
+	{
+		return CombatComponent->EquippedWeapon;
+	}
+	return nullptr;
 }

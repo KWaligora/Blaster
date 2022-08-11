@@ -53,9 +53,10 @@ void UBSTCombatComponent::BeginPlay()
 void UBSTCombatComponent::SetAiming(bool bIsAiming)
 {
 	bAiming = bIsAiming;
-	if (!BSTCharacter->HasAuthority())
+	Server_SetAiming(bIsAiming);
+	if (BSTCharacter)
 	{
-		Server_SetAiming(bIsAiming);
+		BSTCharacter->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
 	}
 }
 
@@ -71,4 +72,8 @@ void UBSTCombatComponent::OnRep_EquippedWeapon()
 void UBSTCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)
 {
 	bAiming = bIsAiming;
+	if (BSTCharacter)
+	{
+		BSTCharacter->GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? AimWalkSpeed : BaseWalkSpeed;
+	}
 }
