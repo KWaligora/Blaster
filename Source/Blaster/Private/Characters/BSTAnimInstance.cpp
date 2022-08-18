@@ -39,6 +39,7 @@ void UBSTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	EquippedWeapon = BSTCharacter->GetEqquipedWeapon();
 	bIsCrouched = BSTCharacter->bIsCrouched;
 	bAiming = BSTCharacter->IsAiming();
+	TurningInPlace = BSTCharacter->GetTurningInPlace();
 
 	FRotator AimRotation = BSTCharacter->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(BSTCharacter->GetVelocity());

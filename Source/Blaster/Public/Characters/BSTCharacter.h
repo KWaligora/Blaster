@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Types/BlasterTypes.h"
 #include "BSTCharacter.generated.h"
 
 UCLASS()
@@ -40,6 +41,8 @@ protected:
 	/*========================================================================
 	 * *                         Movement
 	 *  ==========================================================================*/
+	ETurningInPlace TurningInPlace;
+	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void MoveForward(float Value);
@@ -52,6 +55,8 @@ protected:
 	void AimButtonPressed();
 	void AimButtonRelease();
 	void AimOffset(float DeltaTime);
+	void TurnInPlace(float DeltaTime);
+
 	/*===================================================================*/
 	
 	UFUNCTION(Server, Reliable)
@@ -64,12 +69,17 @@ public:
 	ABSTWeapon* GetEqquipedWeapon();
 	FORCEINLINE float GetAO_YAW() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
+	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}
 	
 private:
-	UFUNCTION()
-	void OnRep_OverlappingWeapon(ABSTWeapon* LastWeapon);
-
 	float AO_Yaw;
+	float InterpAO_Yaw;
 	float AO_Pitch;
 	FRotator StartingAimRotation;
+
+	UFUNCTION()
+	void OnRep_OverlappingWeapon(ABSTWeapon* LastWeapon);
 };
+
+
+
