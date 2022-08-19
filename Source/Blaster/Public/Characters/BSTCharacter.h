@@ -56,6 +56,7 @@ protected:
 	void AimButtonRelease();
 	void AimOffset(float DeltaTime);
 	void TurnInPlace(float DeltaTime);
+	virtual void Jump() override;
 
 	/*===================================================================*/
 	
