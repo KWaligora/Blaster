@@ -69,6 +69,11 @@ void UBSTCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
+void UBSTCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+}
+
 void UBSTCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)
 {
 	bAiming = bIsAiming;

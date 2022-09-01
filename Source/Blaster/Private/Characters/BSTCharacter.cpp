@@ -82,6 +82,8 @@ void ABSTCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ABSTCharacter::CrouchButtonRelease);
 	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABSTCharacter::AimButtonPressed);
 	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABSTCharacter::AimButtonRelease);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABSTCharacter::FireButtonPressed);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABSTCharacter::FireButtonReleased);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &ThisClass::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ThisClass::MoveRight);
@@ -240,6 +242,22 @@ void ABSTCharacter::Jump()
 	else
 	{
 		Super::Jump();
+	}
+}
+
+void ABSTCharacter::FireButtonPressed()
+{
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->FireButtonPressed(true);
+	}
+}
+
+void ABSTCharacter::FireButtonReleased()
+{
+	if (CombatComponent != nullptr)
+	{
+		CombatComponent->FireButtonPressed(false);
 	}
 }
 

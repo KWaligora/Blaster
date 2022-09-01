@@ -28,6 +28,8 @@ protected:
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
 
+	void FireButtonPressed(bool bPressed);
+
 private:
 	UPROPERTY()
 	ABSTCharacter* BSTCharacter;
@@ -43,4 +45,6 @@ private:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	float AimWalkSpeed;
+
+	bool bFireButtonPressed;
 };
