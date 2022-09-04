@@ -57,19 +57,29 @@ protected:
 	void AimOffset(float DeltaTime);
 	void TurnInPlace(float DeltaTime);
 	virtual void Jump() override;
-	void FireButtonPressed();
-	void FireButtonReleased();
 
 	/*===================================================================*/
 	
 	UFUNCTION(Server, Reliable)
 	void ServerEquipButtonPressed();
 
+	/*========================================================================
+	 * *                         Weapon
+	 *  ==========================================================================*/	
 public:
 	void SetOverlappingWeapon(ABSTWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
 	ABSTWeapon* GetEqquipedWeapon();
+	void FireButtonPressed();
+	void FireButtonReleased();
+	void PlayFireMontage(bool bAiming);
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	UAnimMontage* FireWeaponMontage;
+
+	/*===================================================================*/
+	
 	FORCEINLINE float GetAO_YAW() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}

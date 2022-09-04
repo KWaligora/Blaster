@@ -30,6 +30,12 @@ protected:
 
 	void FireButtonPressed(bool bPressed);
 
+	UFUNCTION(Server, Reliable)
+	void Server_Fire();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Fire();
+
 private:
 	UPROPERTY()
 	ABSTCharacter* BSTCharacter;

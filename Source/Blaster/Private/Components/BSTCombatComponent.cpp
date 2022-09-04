@@ -72,6 +72,27 @@ void UBSTCombatComponent::OnRep_EquippedWeapon()
 void UBSTCombatComponent::FireButtonPressed(bool bPressed)
 {
 	bFireButtonPressed = bPressed;
+	if(bFireButtonPressed)
+	{
+		Server_Fire();
+	}	
+}
+
+void UBSTCombatComponent::Multicast_Fire_Implementation()
+{
+	if(EquippedWeapon != nullptr)
+	{
+		if (BSTCharacter != nullptr)
+		{
+			BSTCharacter->PlayFireMontage(bAiming);
+			EquippedWeapon->Fire();
+		}
+	}	
+}
+
+void UBSTCombatComponent::Server_Fire_Implementation()
+{
+	Multicast_Fire();  
 }
 
 void UBSTCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)

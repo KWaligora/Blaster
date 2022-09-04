@@ -24,6 +24,7 @@ public:
 	ABSTWeapon();
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
+	void Fire();
 protected:
 	virtual void BeginPlay() override;
 
@@ -51,6 +52,11 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* PickupWidget;
+
+	//========================================================================
+	
+	UPROPERTY(EditAnywhere, Category="Weapon Properties")
+	class UAnimationAsset* FireAnimation;
 
 	UFUNCTION()
 	void OnRep_WeaponState();

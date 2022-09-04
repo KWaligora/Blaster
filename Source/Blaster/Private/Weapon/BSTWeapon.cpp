@@ -96,6 +96,14 @@ void ABSTWeapon::SetWeaponState(EWeaponState State)
 	}
 }
 
+void ABSTWeapon::Fire()
+{
+	if (FireAnimation != nullptr)
+	{
+		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
+}
+
 void ABSTWeapon::OnRep_WeaponState()
 {
 	switch (WeaponState)
