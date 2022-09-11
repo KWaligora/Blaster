@@ -96,7 +96,7 @@ void ABSTWeapon::SetWeaponState(EWeaponState State)
 	}
 }
 
-void ABSTWeapon::Fire()
+void ABSTWeapon::Fire(const FVector& HitTarget)
 {
 	if (FireAnimation != nullptr)
 	{

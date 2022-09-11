@@ -3,12 +3,13 @@
 #include "Characters/BSTCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BSTWeapon.h"
 
 UBSTCombatComponent::UBSTCombatComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
 	BaseWalkSpeed = 600.0f;
 	AimWalkSpeed = 450.0f;
@@ -38,6 +39,15 @@ void UBSTCombatComponent::EquipWeapon(ABSTWeapon* WeaponToEquip)
 	EquippedWeapon->SetOwner(BSTCharacter);
 	BSTCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 	BSTCharacter->bUseControllerRotationYaw = true;
+}
+
+void UBSTCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
+	FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	FHitResult HitResult;
+	TraceUnderCorsshairs(HitResult);
 }
 
 void UBSTCombatComponent::BeginPlay()
@@ -78,6 +88,48 @@ void UBSTCombatComponent::FireButtonPressed(bool bPressed)
 	}	
 }
 
+void UBSTCombatComponent::TraceUnderCorsshairs(FHitResult& TraceHitResult)
+{
+	FVector2d ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	FVector2d CrosshairLocation(ViewportSize.X / 2.0f, ViewportSize.Y / 2.0f);
+	FVector CrosshairWorldPosition;
+	FVector CrosshairWorldDirection;
+	
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+		UGameplayStatics::GetPlayerController(this, 0),
+		CrosshairLocation,
+		CrosshairWorldPosition,
+		CrosshairWorldDirection
+		);
+
+	if (bScreenToWorld)
+	{
+		FVector Start = CrosshairWorldPosition;
+		FVector End = Start + CrosshairWorldDirection * 8000.0f;
+
+		GetWorld()->LineTraceSingleByChannel(
+			TraceHitResult,
+			Start,
+			End,
+			ECC_Visibility
+			);
+		if (!TraceHitResult.bBlockingHit)
+		{
+			TraceHitResult.ImpactPoint = End;
+		}
+		else
+		{			
+			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 15.0f, 15, FColor::Red);
+		}
+		HitTarget = TraceHitResult.ImpactPoint;
+	}
+;}
+
 void UBSTCombatComponent::Multicast_Fire_Implementation()
 {
 	if(EquippedWeapon != nullptr)
@@ -85,7 +137,7 @@ void UBSTCombatComponent::Multicast_Fire_Implementation()
 		if (BSTCharacter != nullptr)
 		{
 			BSTCharacter->PlayFireMontage(bAiming);
-			EquippedWeapon->Fire();
+			EquippedWeapon->Fire(HitTarget);
 		}
 	}	
 }

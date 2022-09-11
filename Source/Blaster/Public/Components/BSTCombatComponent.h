@@ -4,7 +4,6 @@
 #include "Components/ActorComponent.h"
 #include "BSTCombatComponent.generated.h"
 
-
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BLASTER_API UBSTCombatComponent : public UActorComponent
 {
@@ -17,6 +16,7 @@ public:
 	
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	void EquipWeapon(class ABSTWeapon* WeaponToEquip);
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -35,6 +35,8 @@ protected:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void Multicast_Fire();
+	
+	void TraceUnderCorsshairs(FHitResult& TraceHitResult);
 
 private:
 	UPROPERTY()
@@ -53,4 +55,6 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
+
+	FVector HitTarget;
 };

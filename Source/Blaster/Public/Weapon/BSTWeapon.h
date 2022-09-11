@@ -24,7 +24,7 @@ public:
 	ABSTWeapon();
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
-	void Fire();
+	virtual void Fire(const FVector& HitTarget);
 protected:
 	virtual void BeginPlay() override;
 
