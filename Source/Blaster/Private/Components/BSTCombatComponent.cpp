@@ -45,9 +45,6 @@ void UBSTCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	FHitResult HitResult;
-	TraceUnderCorsshairs(HitResult);
 }
 
 void UBSTCombatComponent::BeginPlay()
@@ -84,7 +81,10 @@ void UBSTCombatComponent::FireButtonPressed(bool bPressed)
 	bFireButtonPressed = bPressed;
 	if(bFireButtonPressed)
 	{
-		Server_Fire();
+		FHitResult HitResult;
+		TraceUnderCorsshairs(HitResult);
+		
+		Server_Fire(HitResult.ImpactPoint);
 	}	
 }
 
@@ -118,33 +118,24 @@ void UBSTCombatComponent::TraceUnderCorsshairs(FHitResult& TraceHitResult)
 			End,
 			ECC_Visibility
 			);
-		if (!TraceHitResult.bBlockingHit)
-		{
-			TraceHitResult.ImpactPoint = End;
-		}
-		else
-		{			
-			DrawDebugSphere(GetWorld(), TraceHitResult.ImpactPoint, 15.0f, 15, FColor::Red);
-		}
-		HitTarget = TraceHitResult.ImpactPoint;
 	}
 ;}
 
-void UBSTCombatComponent::Multicast_Fire_Implementation()
+void UBSTCombatComponent::Multicast_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
 	if(EquippedWeapon != nullptr)
 	{
 		if (BSTCharacter != nullptr)
 		{
 			BSTCharacter->PlayFireMontage(bAiming);
-			EquippedWeapon->Fire(HitTarget);
+			EquippedWeapon->Fire(TraceHitTarget);
 		}
 	}	
 }
 
-void UBSTCombatComponent::Server_Fire_Implementation()
+void UBSTCombatComponent::Server_Fire_Implementation(const FVector_NetQuantize& TraceHitTarget)
 {
-	Multicast_Fire();  
+	Multicast_Fire(TraceHitTarget);
 }
 
 void UBSTCombatComponent::Server_SetAiming_Implementation(bool bIsAiming)

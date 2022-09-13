@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Net/UnrealNetwork.h"
+#include "Weapon/BSTCasing.h"
 
 ABSTWeapon::ABSTWeapon()
 {
@@ -101,6 +102,15 @@ void ABSTWeapon::Fire(const FVector& HitTarget)
 	if (FireAnimation != nullptr)
 	{
 		WeaponMesh->PlayAnimation(FireAnimation, false);
+	}
+
+	if (CasingClass != nullptr)
+	{		
+		UWorld* World = GetWorld();
+		if (World != nullptr)
+		{
+			World->SpawnActor<ABSTCasing>(CasingClass, WeaponMesh->GetSocketTransform(FName("AmmoEject")));
+		}
 	}
 }
 

@@ -5,20 +5,24 @@
 void ABSTProjectileWeapon::Fire(const FVector& HitTarget)
 {
 	Super::Fire(HitTarget);
-	APawn* InstigatorPawn = Cast<APawn>(GetOwner());
 	
-	FTransform SocketTransform = GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"));
-	FRotator FireDirection = (HitTarget - SocketTransform.GetLocation()).Rotation();
-	
-	if (ProjectileClass && InstigatorPawn)
+	if(HasAuthority()) 
 	{
-		FActorSpawnParameters SpawnParameters;
-		SpawnParameters.Owner = GetOwner();
-		SpawnParameters.Instigator = InstigatorPawn;
-		UWorld* World = GetWorld();
-		if (World)
+		APawn* InstigatorPawn = Cast<APawn>(GetOwner());
+	
+		FTransform SocketTransform = GetWeaponMesh()->GetSocketTransform(FName("MuzzleFlash"));
+		FRotator FireDirection = (HitTarget - SocketTransform.GetLocation()).Rotation();
+	
+		if (ProjectileClass && InstigatorPawn)
 		{
-			World->SpawnActor<ABSTProjectile>(ProjectileClass, SocketTransform.GetLocation(), FireDirection, SpawnParameters);
+			FActorSpawnParameters SpawnParameters;
+			SpawnParameters.Owner = GetOwner();
+			SpawnParameters.Instigator = InstigatorPawn;
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				World->SpawnActor<ABSTProjectile>(ProjectileClass, SocketTransform.GetLocation(), FireDirection, SpawnParameters);
+			}
 		}
-	}
+	}	
 }

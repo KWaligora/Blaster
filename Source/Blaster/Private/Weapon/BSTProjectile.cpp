@@ -2,10 +2,13 @@
 
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 ABSTProjectile::ABSTProjectile()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
 	SetRootComponent(CollisionBox);
@@ -24,11 +27,52 @@ ABSTProjectile::ABSTProjectile()
 void ABSTProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	if (Tracer != nullptr)
+	{
+		TracerComponent = UGameplayStatics::SpawnEmitterAttached(
+			Tracer,
+			CollisionBox,
+			FName(),
+			GetActorLocation(),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition);
+	}
+}
+
+void ABSTProjectile::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (HasAuthority())
+	{
+		CollisionBox->OnComponentHit.AddDynamic(this, &ABSTProjectile::OnHit);
+	}
+}
+
+void ABSTProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                           FVector NormalImpulse, const FHitResult& HitResult)
+{
+	Destroy();
 }
 
 void ABSTProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void ABSTProjectile::Destroyed()
+{
+	Super::Destroyed();
+
+	if (ImpactParticle != nullptr)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ImpactParticle, GetActorTransform());
+	}
+
+	if (ImpactSound != nullptr)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, ImpactSound, GetActorLocation());
+	}	
 }
 

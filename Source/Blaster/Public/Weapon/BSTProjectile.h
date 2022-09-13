@@ -12,9 +12,15 @@ class BLASTER_API ABSTProjectile : public AActor
 public:
 	ABSTProjectile();
 	virtual void Tick(float DeltaTime) override;
+	virtual void Destroyed() override;
 
 protected:
 	virtual void BeginPlay() override;
+
+	virtual void PostInitializeComponents() override;
+	
+	UFUNCTION()
+	virtual void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& HitResult);
 
 private:
 	UPROPERTY(EditAnywhere)
@@ -22,4 +28,16 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
+
+	UPROPERTY(EditAnywhere)
+	class UParticleSystem* Tracer;
+
+	UPROPERTY()
+	class UParticleSystemComponent* TracerComponent;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* ImpactParticle;
+
+	UPROPERTY(EditAnywhere)
+	class USoundCue* ImpactSound;
 };

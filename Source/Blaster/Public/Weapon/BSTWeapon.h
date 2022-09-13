@@ -53,6 +53,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* PickupWidget;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ABSTCasing> CasingClass;
+
 	//========================================================================
 	
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
