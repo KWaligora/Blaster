@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "PlayerControllers/BSTPlayerController.h"
 #include "BSTCombatComponent.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -38,9 +39,17 @@ protected:
 	
 	void TraceUnderCorsshairs(FHitResult& TraceHitResult);
 
+	void SetHUDCrosshair(float DeltaTime);
+
 private:
 	UPROPERTY()
 	ABSTCharacter* BSTCharacter;
+
+	UPROPERTY()
+	ABSTPlayerController* BSTPlayerController;
+
+	UPROPERTY()
+	class ABSTHUD* BSTHUD;
 	
 	UPROPERTY(ReplicatedUsing = OnRep_EquippedWeapon)
 	class ABSTWeapon* EquippedWeapon;
@@ -55,4 +64,11 @@ private:
 	float AimWalkSpeed;
 
 	bool bFireButtonPressed;
+
+	/*========================================================================
+	 *                         HUD and Crosshair
+	  ==========================================================================*/
+private:
+	float CrosshairVelocityFactor;
+	float CrosshairInAirFactor;
 };

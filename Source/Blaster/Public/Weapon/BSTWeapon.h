@@ -56,7 +56,27 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class ABSTCasing> CasingClass;
 
+	/*========================================================================
+	 * *                         Crosshair textures
+	 *  ==========================================================================*/
+public:
+	UPROPERTY(EditAnywhere, Category="Crosshairs")
+	class UTexture2D* CrosshairCenter;
+
+	UPROPERTY(EditAnywhere, Category="Crosshairs")
+	class UTexture2D* CrosshairLeft;
+
+	UPROPERTY(EditAnywhere, Category="Crosshairs")
+	class UTexture2D* CrosshairRight;
+
+	UPROPERTY(EditAnywhere, Category="Crosshairs")
+	class UTexture2D* CrosshairTop;
+
+	UPROPERTY(EditAnywhere, Category="Crosshairs")
+	class UTexture2D* CrosshairBottom;
+	
 	//========================================================================
+protected:
 	
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	class UAnimationAsset* FireAnimation;

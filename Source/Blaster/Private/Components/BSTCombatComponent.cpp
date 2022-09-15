@@ -3,6 +3,7 @@
 #include "Characters/BSTCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "HUD/BSTHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BSTWeapon.h"
@@ -45,13 +46,70 @@ void UBSTCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	SetHUDCrosshair(DeltaTime);
+}
+
+void UBSTCombatComponent::SetHUDCrosshair(float DeltaTime)
+{
+	if (BSTCharacter == nullptr || BSTCharacter->Controller == nullptr)
+	{
+		return;
+	}
+
+	BSTPlayerController = BSTPlayerController == nullptr ? Cast<ABSTPlayerController>(BSTCharacter->Controller) : BSTPlayerController;	
+	if (BSTPlayerController != nullptr)
+	{
+		BSTHUD = BSTHUD == nullptr ? Cast<ABSTHUD>(BSTPlayerController->GetHUD()) : BSTHUD;
+		if (BSTHUD != nullptr && EquippedWeapon != nullptr)
+		{
+			FHUDPackage HUDPackage;
+			
+			if (EquippedWeapon != nullptr)
+			{
+				HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairCenter;
+				HUDPackage.CrosshairLeft = EquippedWeapon->CrosshairLeft;
+				HUDPackage.CrosshairRight = EquippedWeapon->CrosshairRight;
+				HUDPackage.CrosshairBottom = EquippedWeapon->CrosshairBottom;
+				HUDPackage.CrosshairTop = EquippedWeapon->CrosshairTop;
+			}
+			else
+			{
+				HUDPackage.CrosshairCenter = nullptr;
+				HUDPackage.CrosshairLeft = nullptr;
+				HUDPackage.CrosshairRight = nullptr;
+				HUDPackage.CrosshairBottom = nullptr;
+				HUDPackage.CrosshairTop = nullptr;
+			}
+
+			FVector2D WalkSpeedRange(0.0f, BSTCharacter->GetMovementComponent()->GetMaxSpeed());
+			FVector2D VelocityMultiplayerRange(0.0f, 1.0f);
+			FVector Velocity = BSTCharacter->GetVelocity();
+			Velocity.Z = 0.0f;
+
+			CrosshairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplayerRange, Velocity.Size());
+
+			if(BSTCharacter->GetMovementComponent()->IsFalling())
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 2.25f, DeltaTime, 2.25f);
+			}
+			else
+			{
+				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.0f, DeltaTime, 30.0f);
+			}
+			
+			HUDPackage.CrosshairSpreed = CrosshairVelocityFactor + CrosshairInAirFactor;
+			
+			BSTHUD->HUDPackage = HUDPackage;
+		}
+	}
 }
 
 void UBSTCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (BSTCharacter)
+	if (BSTCharacter != nullptr)
 	{
 		BSTCharacter->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
 	}
