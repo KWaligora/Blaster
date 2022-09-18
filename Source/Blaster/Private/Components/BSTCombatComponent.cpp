@@ -48,6 +48,13 @@ void UBSTCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	SetHUDCrosshair(DeltaTime);
+
+	if (BSTCharacter != nullptr && BSTCharacter->IsLocallyControlled())
+	{
+		FHitResult HitResult;
+		TraceUnderCorsshairs(HitResult);
+		HitTarget = HitResult.ImpactPoint;
+	}
 }
 
 void UBSTCombatComponent::SetHUDCrosshair(float DeltaTime)

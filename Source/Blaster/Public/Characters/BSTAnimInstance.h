@@ -35,6 +35,9 @@ private:
 	
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta=(AllowPrivateAccess = "true"))
 	bool bWeaponEquipped;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta=(AllowPrivateAccess = "true"))
+	bool bLocallyControlled;
 
 	UPROPERTY()
 	class ABSTWeapon* EquippedWeapon;
@@ -59,6 +62,9 @@ private:
 
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta=(AllowPrivateAccess = "true"))
 	FTransform LeftHandTransform;
+	
+	UPROPERTY(BlueprintReadOnly, Category="Movement", meta=(AllowPrivateAccess = "true"))
+    FRotator RightHandRotation;
 	
 	UPROPERTY(BlueprintReadOnly, Category="Movement", meta=(AllowPrivateAccess = "true"))
 	ETurningInPlace TurningInPlace;

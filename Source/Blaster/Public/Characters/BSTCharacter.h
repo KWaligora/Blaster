@@ -74,6 +74,7 @@ public:
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void PlayFireMontage(bool bAiming);
+	FVector GetHitTarget() const;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	UAnimMontage* FireWeaponMontage;

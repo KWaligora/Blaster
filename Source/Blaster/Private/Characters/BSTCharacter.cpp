@@ -279,6 +279,16 @@ void ABSTCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+FVector ABSTCharacter::GetHitTarget() const
+{
+	if (CombatComponent == nullptr)
+	{
+		return FVector();
+	}
+
+	return CombatComponent->HitTarget;
+}
+
 void ABSTCharacter::ServerEquipButtonPressed_Implementation()
 {
 	if (CombatComponent != nullptr)
