@@ -1,5 +1,6 @@
 #include "Components/BSTCombatComponent.h"
 
+#include "Camera/CameraComponent.h"
 #include "Characters/BSTCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -47,13 +48,14 @@ void UBSTCombatComponent::TickComponent(float DeltaTime, ELevelTick TickType,
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetHUDCrosshair(DeltaTime);
-
 	if (BSTCharacter != nullptr && BSTCharacter->IsLocallyControlled())
 	{
 		FHitResult HitResult;
 		TraceUnderCorsshairs(HitResult);
 		HitTarget = HitResult.ImpactPoint;
+
+		SetHUDCrosshair(DeltaTime);
+		InterpFOV(DeltaTime);
 	}
 }
 
@@ -112,6 +114,26 @@ void UBSTCombatComponent::SetHUDCrosshair(float DeltaTime)
 	}
 }
 
+void UBSTCombatComponent::InterpFOV(float DeltaTime)
+{
+	if (EquippedWeapon != nullptr)
+	{
+		if (bAiming)
+		{
+			CurrentFOV = FMath::FInterpTo(CurrentFOV, EquippedWeapon->GetZoomedFOV(), DeltaTime, EquippedWeapon->GetZoomedInterpSpeed());
+		}
+		else
+		{
+			CurrentFOV = FMath::FInterpTo(CurrentFOV, DefaultFOV, DeltaTime, ZoomInterpSpeed);
+		}
+
+		if (BSTCharacter != nullptr && BSTCharacter->GetFollowCamera())
+		{
+			BSTCharacter->GetFollowCamera()->SetFieldOfView(CurrentFOV);
+		}
+	}
+}
+
 void UBSTCombatComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -119,6 +141,11 @@ void UBSTCombatComponent::BeginPlay()
 	if (BSTCharacter != nullptr)
 	{
 		BSTCharacter->GetCharacterMovement()->MaxWalkSpeed = BaseWalkSpeed;
+
+		if (BSTCharacter->GetFollowCamera() != nullptr)
+		{
+			CurrentFOV = DefaultFOV = BSTCharacter->GetFollowCamera()->FieldOfView;
+		}
 	}
 }
 

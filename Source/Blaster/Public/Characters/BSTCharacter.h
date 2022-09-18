@@ -84,6 +84,7 @@ public:
 	FORCEINLINE float GetAO_YAW() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}
+	FORCEINLINE UCameraComponent* GetFollowCamera() const {return FollowCamera;}
 	
 private:
 	float AO_Yaw;
