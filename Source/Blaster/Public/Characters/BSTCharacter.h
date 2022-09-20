@@ -42,6 +42,11 @@ protected:
 	/*========================================================================
 	 * *                         Movement
 	 *  ==========================================================================*/
+public:
+	FORCEINLINE bool ShouldRotateRootBone() const {return bRotateRootBone;}
+	
+	virtual void OnRep_ReplicatedMovement() override;
+	
 protected:
 	ETurningInPlace TurningInPlace;
 	
@@ -56,13 +61,23 @@ protected:
 	void CrouchButtonRelease();
 	void AimButtonPressed();
 	void AimButtonRelease();
+	void CalculateAO_Pitch();
+	float CalculateSpeed();
 	void AimOffset(float DeltaTime);
+	void SimProxiesTurn();
 	void TurnInPlace(float DeltaTime);
 	virtual void Jump() override;
 
 private:
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "true"))
 	float CameraThreshold = 200.0f;
+	bool bRotateRootBone;
+	float TurnThreshold = 0.5f;
+	FRotator ProxyRotationLastFrame;
+	FRotator ProxyRotation;
+	float ProxyYaw;
+	float TimeSinceLastMovementReplication;
+	
 	void HideCameraIfCharacterClose();
 
 	/*===================================================================*/
