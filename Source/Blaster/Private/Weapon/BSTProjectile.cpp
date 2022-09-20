@@ -1,9 +1,11 @@
 ﻿#include "Weapon/BSTProjectile.h"
 
+#include "Characters/BSTCharacter.h"
 #include "Components/BoxComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Blaster/Blaster.h"
 
 ABSTProjectile::ABSTProjectile()
 {
@@ -17,6 +19,7 @@ ABSTProjectile::ABSTProjectile()
 	CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
 	CollisionBox->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	CollisionBox->SetCollisionResponseToChannel(ECC_WorldStatic, ECR_Block);
+	CollisionBox->SetCollisionResponseToChannel(ECC_SkeletalMesh, ECR_Block);
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComp"));
 	ProjectileMovementComponent->bRotationFollowsVelocity = true;
@@ -53,6 +56,12 @@ void ABSTProjectile::PostInitializeComponents()
 void ABSTProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                            FVector NormalImpulse, const FHitResult& HitResult)
 {
+	ABSTCharacter* BSTCharacter = Cast<ABSTCharacter>(OtherActor);
+	if (BSTCharacter != nullptr)
+	{
+		BSTCharacter->Multicast_Hit();
+	}
+	
 	Destroy();
 }
 

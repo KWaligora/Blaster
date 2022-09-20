@@ -70,7 +70,8 @@ void UBSTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		{
 			bLocallyControlled = true;
 			FTransform RightHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("Hand_R"), RTS_World);
-			RightHandRotation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(), RightHandTransform.GetLocation() + (RightHandTransform.GetLocation() - BSTCharacter->GetHitTarget()));
+			FRotator LookAtLocation = UKismetMathLibrary::FindLookAtRotation(RightHandTransform.GetLocation(), RightHandTransform.GetLocation() + (RightHandTransform.GetLocation() - BSTCharacter->GetHitTarget())); 
+			RightHandRotation = FMath::RInterpTo(RightHandRotation, LookAtLocation, DeltaSeconds, 30.0f);
 		}
 	}
 }

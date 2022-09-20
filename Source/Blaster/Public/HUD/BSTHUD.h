@@ -26,6 +26,8 @@ public:
 	class UTexture2D* CrosshairBottom;
 
 	float CrosshairSpreed;
+
+	FLinearColor CrosshairColor;
 };
 
 /**
@@ -45,5 +47,5 @@ private:
 	UPROPERTY(EditAnywhere)
 	float CrosshairSpreedMax = 16.0f;
 	
-	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spreed);
+	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spreed, FLinearColor Color);
 };

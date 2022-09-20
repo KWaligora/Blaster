@@ -2,11 +2,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/InteractWithCrosshair.h"
 #include "Types/BlasterTypes.h"
 #include "BSTCharacter.generated.h"
 
 UCLASS()
-class BLASTER_API ABSTCharacter : public ACharacter
+class BLASTER_API ABSTCharacter : public ACharacter, public IInteractWithCrosshair
 {
 	GENERATED_BODY()
 
@@ -41,6 +42,7 @@ protected:
 	/*========================================================================
 	 * *                         Movement
 	 *  ==========================================================================*/
+protected:
 	ETurningInPlace TurningInPlace;
 	
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -58,6 +60,11 @@ protected:
 	void TurnInPlace(float DeltaTime);
 	virtual void Jump() override;
 
+private:
+	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "true"))
+	float CameraThreshold = 200.0f;
+	void HideCameraIfCharacterClose();
+
 	/*===================================================================*/
 	
 	UFUNCTION(Server, Reliable)
@@ -67,6 +74,10 @@ protected:
 	 * *                         Weapon
 	 *  ==========================================================================*/	
 public:
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	UAnimMontage* FireWeaponMontage;
+	
 	void SetOverlappingWeapon(ABSTWeapon* Weapon);
 	bool IsWeaponEquipped();
 	bool IsAiming();
@@ -76,8 +87,17 @@ public:
 	void PlayFireMontage(bool bAiming);
 	FVector GetHitTarget() const;
 
+protected:
+	void PlayHitReactMontage();
+	/*========================================================================
+	 * *                         Combat
+	 *  ==========================================================================*/
+public:
 	UPROPERTY(EditAnywhere, Category="Combat")
-	UAnimMontage* FireWeaponMontage;
+	UAnimMontage* HitReactMontage;
+
+	UFUNCTION(NetMulticast, Unreliable)
+	void Multicast_Hit();
 
 	/*===================================================================*/
 	

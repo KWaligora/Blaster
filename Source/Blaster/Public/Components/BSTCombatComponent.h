@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "HUD/BSTHUD.h"
 #include "PlayerControllers/BSTPlayerController.h"
 #include "BSTCombatComponent.generated.h"
 
@@ -71,8 +72,12 @@ private:
 private:
 	float CrosshairVelocityFactor;
 	float CrosshairInAirFactor;
+	float CrosshairAimFactor;
+	float CrosshairShootingFactor;
 
 	FVector HitTarget;
+
+	FHUDPackage HUDPackage;
 
 	/*========================================================================
 	 * *                         Aiming and FOV

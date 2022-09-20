@@ -4,7 +4,6 @@
 #include "Characters/BSTCharacter.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/CharacterMovementComponent.h"
-#include "HUD/BSTHUD.h"
 #include "Kismet/GameplayStatics.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BSTWeapon.h"
@@ -71,9 +70,7 @@ void UBSTCombatComponent::SetHUDCrosshair(float DeltaTime)
 	{
 		BSTHUD = BSTHUD == nullptr ? Cast<ABSTHUD>(BSTPlayerController->GetHUD()) : BSTHUD;
 		if (BSTHUD != nullptr && EquippedWeapon != nullptr)
-		{
-			FHUDPackage HUDPackage;
-			
+		{			
 			if (EquippedWeapon != nullptr)
 			{
 				HUDPackage.CrosshairCenter = EquippedWeapon->CrosshairCenter;
@@ -106,8 +103,19 @@ void UBSTCombatComponent::SetHUDCrosshair(float DeltaTime)
 			{
 				CrosshairInAirFactor = FMath::FInterpTo(CrosshairInAirFactor, 0.0f, DeltaTime, 30.0f);
 			}
+
+			if (bAiming)
+			{
+				CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0.58f, DeltaTime, 30.0f);
+			}
+			else
+			{
+				CrosshairAimFactor = FMath::FInterpTo(CrosshairAimFactor, 0, DeltaTime, 30.0f);
+			}
+
+			CrosshairShootingFactor = FMath::FInterpTo(CrosshairShootingFactor, 0, DeltaTime, 40.0f);
 			
-			HUDPackage.CrosshairSpreed = CrosshairVelocityFactor + CrosshairInAirFactor;
+			HUDPackage.CrosshairSpreed = 0.5f + CrosshairVelocityFactor + CrosshairInAirFactor - CrosshairAimFactor + CrosshairShootingFactor;
 			
 			BSTHUD->HUDPackage = HUDPackage;
 		}
@@ -177,6 +185,11 @@ void UBSTCombatComponent::FireButtonPressed(bool bPressed)
 		TraceUnderCorsshairs(HitResult);
 		
 		Server_Fire(HitResult.ImpactPoint);
+
+		if (EquippedWeapon != nullptr)
+		{
+			CrosshairShootingFactor = 0.75f;
+		}
 	}	
 }
 
@@ -202,6 +215,13 @@ void UBSTCombatComponent::TraceUnderCorsshairs(FHitResult& TraceHitResult)
 	if (bScreenToWorld)
 	{
 		FVector Start = CrosshairWorldPosition;
+
+		if (BSTCharacter != nullptr)
+		{
+			float DistanceToCharacter = (BSTCharacter->GetActorLocation() - Start).Size();
+			Start += CrosshairWorldDirection * (DistanceToCharacter + 100.0f);
+		}
+		
 		FVector End = Start + CrosshairWorldDirection * 8000.0f;
 
 		GetWorld()->LineTraceSingleByChannel(
@@ -210,6 +230,15 @@ void UBSTCombatComponent::TraceUnderCorsshairs(FHitResult& TraceHitResult)
 			End,
 			ECC_Visibility
 			);
+
+		if (TraceHitResult.GetActor() != nullptr && TraceHitResult.GetActor()->Implements<UInteractWithCrosshair>())
+		{
+			HUDPackage.CrosshairColor = FLinearColor::Red;
+		}
+		else
+		{
+			HUDPackage.CrosshairColor = FLinearColor::White;
+		}
 	}
 ;}
 

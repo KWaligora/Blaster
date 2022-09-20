@@ -1,5 +1,6 @@
 #include "Characters/BSTCharacter.h"
 
+#include "Blaster/Blaster.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -34,7 +35,9 @@ ABSTCharacter::ABSTCharacter()
 
 	GetCharacterMovement()->NavAgentProps.bCanCrouch = true;
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionObjectType(ECC_SkeletalMesh);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 0.0f, 850.0f);
 
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
@@ -60,6 +63,7 @@ void ABSTCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AimOffset(DeltaTime);
+	HideCameraIfCharacterClose();
 }
 
 void ABSTCharacter::PostInitializeComponents()
@@ -245,6 +249,30 @@ void ABSTCharacter::Jump()
 	}
 }
 
+void ABSTCharacter::HideCameraIfCharacterClose()
+{
+	if(IsLocallyControlled())
+	{
+		// Check if camera is too close to character
+		if ((FollowCamera->GetComponentLocation() - GetActorLocation()).Size() < CameraThreshold)
+		{
+			GetMesh()->SetVisibility(false);
+			if (CombatComponent != nullptr && CombatComponent->EquippedWeapon != nullptr)
+			{
+				CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = true;
+			}
+		}
+		else
+		{
+			GetMesh()->SetVisibility(true);
+			if (CombatComponent != nullptr && CombatComponent->EquippedWeapon != nullptr)
+			{
+				CombatComponent->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
+			}
+		}
+	}
+}
+
 void ABSTCharacter::FireButtonPressed()
 {
 	if (CombatComponent != nullptr)
@@ -279,6 +307,19 @@ void ABSTCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+void ABSTCharacter::PlayHitReactMontage()
+{
+	if (CombatComponent != nullptr && CombatComponent->EquippedWeapon != nullptr)
+	{
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance != nullptr && HitReactMontage)
+		{
+			AnimInstance->Montage_Play(HitReactMontage);
+			AnimInstance->Montage_JumpToSection(FName("FromFront"));
+		}
+	}
+}
+
 FVector ABSTCharacter::GetHitTarget() const
 {
 	if (CombatComponent == nullptr)
@@ -287,6 +328,11 @@ FVector ABSTCharacter::GetHitTarget() const
 	}
 
 	return CombatComponent->HitTarget;
+}
+
+void ABSTCharacter::Multicast_Hit_Implementation()
+{
+	PlayHitReactMontage();
 }
 
 void ABSTCharacter::ServerEquipButtonPressed_Implementation()
