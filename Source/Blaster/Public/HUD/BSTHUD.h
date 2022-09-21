@@ -40,12 +40,20 @@ class BLASTER_API ABSTHUD : public AHUD
 
 public:
 	FHUDPackage HUDPackage;
+
+	UPROPERTY(EditAnywhere, Category="Player Stats")
+	TSubclassOf<UUserWidget> CharacterOverlayClass;
+	
+	UPROPERTY()
+	class UBSTCharacterOverlay* CharacterOverlay;
 	
 	virtual void DrawHUD() override;
 
 private:
 	UPROPERTY(EditAnywhere)
 	float CrosshairSpreedMax = 16.0f;
-	
+
+	virtual void BeginPlay() override;
+	void AddCharacterOverlay();
 	void DrawCrosshair(UTexture2D* Texture, FVector2D ViewportCenter, FVector2D Spreed, FLinearColor Color);
 };

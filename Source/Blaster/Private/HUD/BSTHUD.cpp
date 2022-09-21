@@ -1,5 +1,8 @@
 #include "HUD/BSTHUD.h"
 
+#include "Blueprint/UserWidget.h"
+#include "HUD/BSTCharacterOverlay.h"
+
 void ABSTHUD::DrawHUD()
 {
 	Super::DrawHUD();
@@ -37,6 +40,23 @@ void ABSTHUD::DrawHUD()
 			FVector2D Spreed(0.0f, SpreedScale);
 			DrawCrosshair(HUDPackage.CrosshairBottom, ViewportCenter, Spreed, HUDPackage.CrosshairColor);
 		}
+	}
+}
+
+void ABSTHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AddCharacterOverlay();	
+}
+
+void ABSTHUD::AddCharacterOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController != nullptr && CharacterOverlayClass != nullptr)
+	{
+		CharacterOverlay = CreateWidget<UBSTCharacterOverlay>(PlayerController, CharacterOverlayClass);
+		CharacterOverlay->AddToViewport();
 	}
 }
 
