@@ -50,6 +50,7 @@ void ABSTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ABSTCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ABSTCharacter, CurrentHealth);
 }
 
 void ABSTCharacter::BeginPlay()
@@ -390,6 +391,11 @@ void ABSTCharacter::PlayHitReactMontage()
 			AnimInstance->Montage_JumpToSection(FName("FromFront"));
 		}
 	}
+}
+
+void ABSTCharacter::OnRep_Health()
+{
+	
 }
 
 FVector ABSTCharacter::GetHitTarget() const

@@ -122,6 +122,23 @@ void UBSTCombatComponent::SetHUDCrosshair(float DeltaTime)
 	}
 }
 
+void UBSTCombatComponent::StartFireTimer()
+{
+	if (EquippedWeapon != nullptr && GetWorld() != nullptr)
+	{
+		GetWorld()->GetTimerManager().SetTimer(FireTimer, this, &ThisClass::FireTimerFinish,  EquippedWeapon->FireDelay);
+	}
+}
+
+void UBSTCombatComponent::FireTimerFinish()
+{
+	bCanFire = true;
+	if (bFireButtonPressed && EquippedWeapon->bAutomatic)
+	{
+		Fire();
+	}
+}
+
 void UBSTCombatComponent::InterpFOV(float DeltaTime)
 {
 	if (EquippedWeapon != nullptr)
@@ -176,20 +193,28 @@ void UBSTCombatComponent::OnRep_EquippedWeapon()
 	}
 }
 
-void UBSTCombatComponent::FireButtonPressed(bool bPressed)
+void UBSTCombatComponent::Fire()
 {
-	bFireButtonPressed = bPressed;
-	if(bFireButtonPressed)
+	if (bCanFire)
 	{
-		FHitResult HitResult;
-		TraceUnderCorsshairs(HitResult);
+		bCanFire = false;
 		
-		Server_Fire(HitResult.ImpactPoint);
+		Server_Fire(HitTarget);
 
 		if (EquippedWeapon != nullptr)
 		{
 			CrosshairShootingFactor = 0.75f;
 		}
+		StartFireTimer();
+	}
+}
+
+void UBSTCombatComponent::FireButtonPressed(bool bPressed)
+{
+	bFireButtonPressed = bPressed;
+	if(bFireButtonPressed && EquippedWeapon != nullptr)
+	{		
+		Fire();
 	}	
 }
 

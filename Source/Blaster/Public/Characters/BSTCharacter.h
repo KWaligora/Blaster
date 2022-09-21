@@ -114,8 +114,21 @@ public:
 	UFUNCTION(NetMulticast, Unreliable)
 	void Multicast_Hit();
 
-	/*===================================================================*/
+	/*========================================================================
+	 * *                         Health
+	 *  ==========================================================================*/
+protected:
+	UPROPERTY(EditAnywhere, Category = "Health")
+	float MaxHealth = 100.0f;
+
+	UPROPERTY(ReplicatedUsing=OnRep_Health, VisibleAnywhere, Category="Health")
+	float CurrentHealth = 100.0f;
+
+	UFUNCTION()
+	void OnRep_Health();
 	
+	//========================================================================
+public:
 	FORCEINLINE float GetAO_YAW() const {return AO_Yaw;}
 	FORCEINLINE float GetAO_Pitch() const {return AO_Pitch;}
 	FORCEINLINE ETurningInPlace GetTurningInPlace() const {return TurningInPlace;}

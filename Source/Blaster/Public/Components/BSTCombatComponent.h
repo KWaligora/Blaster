@@ -29,6 +29,7 @@ protected:
 
 	UFUNCTION()
 	void OnRep_EquippedWeapon();
+	void Fire();
 
 	void FireButtonPressed(bool bPressed);
 
@@ -66,6 +67,13 @@ private:
 
 	bool bFireButtonPressed;
 
+	FTimerHandle FireTimer;
+
+	bool bCanFire = true;
+
+	void StartFireTimer();
+	void FireTimerFinish();
+	
 	/*========================================================================
 	 *                         HUD and Crosshair
 	  ==========================================================================*/
