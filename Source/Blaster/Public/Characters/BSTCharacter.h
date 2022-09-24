@@ -14,12 +14,15 @@ class BLASTER_API ABSTCharacter : public ACharacter, public IInteractWithCrossha
 public:
 	ABSTCharacter();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-	
+	void UpdateHUDHealth();
+
 protected:
 	virtual void BeginPlay() override;	
 	virtual void Tick(float DeltaTime) override;
 	virtual void PostInitializeComponents() override;
-	
+
+	UPROPERTY()
+	class ABSTPlayerController* BSTPlayerController;
 	/*========================================================================
 	 * *                         Components
 	 *  ==========================================================================*/
@@ -71,6 +74,7 @@ protected:
 private:
 	UPROPERTY(EditAnywhere, meta=(AllowPrivateAccess = "true"))
 	float CameraThreshold = 200.0f;
+	
 	bool bRotateRootBone;
 	float TurnThreshold = 0.5f;
 	FRotator ProxyRotationLastFrame;
@@ -107,17 +111,28 @@ protected:
 	/*========================================================================
 	 * *                         Combat
 	 *  ==========================================================================*/
-public:
+private:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	UAnimMontage* HitReactMontage;
 
-	UFUNCTION(NetMulticast, Unreliable)
-	void Multicast_Hit();
+	UPROPERTY(EditAnywhere, Category="Combat")
+	UAnimMontage* ElimMontage;
+	
+public:
+	void PlayElimMontage();
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Eliminated();
 
 	/*========================================================================
 	 * *                         Health
 	 *  ==========================================================================*/
+public:
+	FORCEINLINE bool IsAlive() {return bElimmed;}
+	
 protected:
+	bool bElimmed = false;
+	
 	UPROPERTY(EditAnywhere, Category = "Health")
 	float MaxHealth = 100.0f;
 
@@ -126,7 +141,9 @@ protected:
 
 	UFUNCTION()
 	void OnRep_Health();
-	
+
+	UFUNCTION()
+	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	//========================================================================
 public:
 	FORCEINLINE float GetAO_YAW() const {return AO_Yaw;}

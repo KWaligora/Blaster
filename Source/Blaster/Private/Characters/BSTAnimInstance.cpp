@@ -41,6 +41,7 @@ void UBSTAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bAiming = BSTCharacter->IsAiming();
 	TurningInPlace = BSTCharacter->GetTurningInPlace();
 	bRotateRootBone = BSTCharacter->ShouldRotateRootBone();
+	bElimmed = BSTCharacter->IsAlive();
 
 	FRotator AimRotation = BSTCharacter->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(BSTCharacter->GetVelocity());

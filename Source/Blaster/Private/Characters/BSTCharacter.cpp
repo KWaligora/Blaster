@@ -1,12 +1,14 @@
 #include "Characters/BSTCharacter.h"
 
 #include "Blaster/Blaster.h"
+#include "Blaster/BSTGameMode.h"
 #include "Camera/CameraComponent.h"
 #include "Components/WidgetComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Weapon/BSTWeapon.h"
+#include "PlayerControllers/BSTPlayerController.h"
 #include "Components/BSTCombatComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -53,10 +55,20 @@ void ABSTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLif
 	DOREPLIFETIME(ABSTCharacter, CurrentHealth);
 }
 
+void ABSTCharacter::UpdateHUDHealth()
+{
+	BSTPlayerController = BSTPlayerController == nullptr ? Cast<ABSTPlayerController>(Controller) : BSTPlayerController;
+	if (BSTPlayerController != nullptr)
+	{
+		BSTPlayerController->SetHUDHealth(CurrentHealth, MaxHealth);
+	}
+}
+
 void ABSTCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UpdateHUDHealth();
 }
 
 void ABSTCharacter::Tick(float DeltaTime)
@@ -87,6 +99,11 @@ void ABSTCharacter::PostInitializeComponents()
 	if (CombatComponent != nullptr)
 	{
 		CombatComponent->BSTCharacter = this;
+	}
+
+	if (HasAuthority())
+	{
+		OnTakeAnyDamage.AddDynamic(this, &ThisClass::ReceiveDamage);
 	}
 }
 
@@ -393,9 +410,44 @@ void ABSTCharacter::PlayHitReactMontage()
 	}
 }
 
+void ABSTCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance != nullptr && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
+void ABSTCharacter::Eliminated_Implementation()
+{
+	bElimmed = true;
+	PlayElimMontage();
+}
+
 void ABSTCharacter::OnRep_Health()
 {
-	
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
+
+void ABSTCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatorController, AActor* DamageCauser)
+{
+	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, MaxHealth);
+
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+
+	if (CurrentHealth <= 0.0f)
+	{
+		ABSTGameMode* BSTGameMode = GetWorld()->GetAuthGameMode<ABSTGameMode>();
+        if (BSTGameMode != nullptr)
+        {
+        	ABSTPlayerController* AttackerController = Cast<ABSTPlayerController>(InstigatorController);
+        	BSTGameMode->PlayerEliminated(this, BSTPlayerController, AttackerController);
+        }
+	}	
 }
 
 FVector ABSTCharacter::GetHitTarget() const
@@ -406,11 +458,6 @@ FVector ABSTCharacter::GetHitTarget() const
 	}
 
 	return CombatComponent->HitTarget;
-}
-
-void ABSTCharacter::Multicast_Hit_Implementation()
-{
-	PlayHitReactMontage();
 }
 
 void ABSTCharacter::ServerEquipButtonPressed_Implementation()

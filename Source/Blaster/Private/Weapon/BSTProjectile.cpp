@@ -55,13 +55,7 @@ void ABSTProjectile::PostInitializeComponents()
 
 void ABSTProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                            FVector NormalImpulse, const FHitResult& HitResult)
-{
-	ABSTCharacter* BSTCharacter = Cast<ABSTCharacter>(OtherActor);
-	if (BSTCharacter != nullptr)
-	{
-		BSTCharacter->Multicast_Hit();
-	}
-	
+{	
 	Destroy();
 }
 
