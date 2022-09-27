@@ -11,4 +11,5 @@ class BLASTER_API ABSTGameMode : public AGameMode
 
 public:
 	virtual void PlayerEliminated(class ABSTCharacter* ElimmedCharacter, class ABSTPlayerController* VictimController, ABSTPlayerController* AttackerController);
+	virtual void RequestRespawn(class ACharacter* ElimmedCharacter, AController* ElimController);
 };

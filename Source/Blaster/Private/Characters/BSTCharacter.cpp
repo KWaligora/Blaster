@@ -16,6 +16,7 @@
 ABSTCharacter::ABSTCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetMesh());
@@ -419,7 +420,22 @@ void ABSTCharacter::PlayElimMontage()
 	}
 }
 
-void ABSTCharacter::Eliminated_Implementation()
+void ABSTCharacter::Eliminated()
+{
+	Multicast_Eliminated();
+	GetWorldTimerManager().SetTimer(ElimTimer, this, &ABSTCharacter::ElimTimerFinished, ElimDelay);
+}
+
+void ABSTCharacter::ElimTimerFinished()
+{
+	ABSTGameMode* BSTGameMode = GetWorld()->GetAuthGameMode<ABSTGameMode>();
+	if (BSTGameMode != nullptr)
+	{
+		BSTGameMode->RequestRespawn(this, Controller);
+	}
+}
+
+void ABSTCharacter::Multicast_Eliminated_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();

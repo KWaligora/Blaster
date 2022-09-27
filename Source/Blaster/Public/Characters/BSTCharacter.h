@@ -111,18 +111,28 @@ protected:
 	/*========================================================================
 	 * *                         Combat
 	 *  ==========================================================================*/
+public:
+	void PlayElimMontage();
+
+	void Eliminated();
+	
+	UFUNCTION(NetMulticast, Reliable)
+	void Multicast_Eliminated();
+
+protected:
+	UPROPERTY(EditDefaultsOnly)
+	float ElimDelay = 3.0f;
+	
+	FTimerHandle ElimTimer;
+	
+	void ElimTimerFinished();
+	
 private:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	UAnimMontage* HitReactMontage;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	UAnimMontage* ElimMontage;
-	
-public:
-	void PlayElimMontage();
-
-	UFUNCTION(NetMulticast, Reliable)
-	void Eliminated();
 
 	/*========================================================================
 	 * *                         Health
