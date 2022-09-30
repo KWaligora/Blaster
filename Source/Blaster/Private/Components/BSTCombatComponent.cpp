@@ -188,6 +188,12 @@ void UBSTCombatComponent::OnRep_EquippedWeapon()
 {
 	if (EquippedWeapon && BSTCharacter)
 	{
+		EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
+		const USkeletalMeshSocket* HandSocket = BSTCharacter->GetMesh()->GetSocketByName(FName("RightHandSocket"));
+		if (HandSocket)
+		{
+			HandSocket->AttachActor(EquippedWeapon, BSTCharacter->GetMesh());
+		}		
 		BSTCharacter->GetCharacterMovement()->bOrientRotationToMovement = false;
 		BSTCharacter->bUseControllerRotationYaw = true;
 	}

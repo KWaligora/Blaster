@@ -25,6 +25,8 @@ public:
 	void ShowPickupWidget(bool bShowWidget);
 	void SetWeaponState(EWeaponState State);
 	virtual void Fire(const FVector& HitTarget);
+	void Dropped();
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -37,6 +39,7 @@ protected:
 	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	/*========================================================================
 	 * *                         Components
 	 *  ==========================================================================*/

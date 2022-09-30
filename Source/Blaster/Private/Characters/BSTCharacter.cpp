@@ -424,6 +424,10 @@ void ABSTCharacter::PlayElimMontage()
 
 void ABSTCharacter::Eliminated()
 {
+	if (CombatComponent != nullptr && CombatComponent->EquippedWeapon != nullptr)
+	{
+		CombatComponent->EquippedWeapon->Dropped();
+	}
 	Multicast_Eliminated();
 	GetWorldTimerManager().SetTimer(ElimTimer, this, &ABSTCharacter::ElimTimerFinished, ElimDelay);
 }
@@ -442,6 +446,7 @@ void ABSTCharacter::Multicast_Eliminated_Implementation()
 	bElimmed = true;
 	PlayElimMontage();
 
+	// Dissolve
 	if (DissolveMaterialInstance != nullptr)
 	{
 		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
@@ -450,6 +455,18 @@ void ABSTCharacter::Multicast_Eliminated_Implementation()
 		DynamicDissolveMaterialInstance->SetScalarParameterValue(FName("Glow"), 200.0f);
 	}
 	StartDissolve();
+
+	// Disable Movement
+	GetCharacterMovement()->DisableMovement();
+	GetCharacterMovement()->StopMovementImmediately();
+	if (BSTPlayerController != nullptr)
+	{
+		DisableInput(BSTPlayerController);
+	}
+	
+	// DisableCollision;
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ABSTCharacter::OnRep_Health()
