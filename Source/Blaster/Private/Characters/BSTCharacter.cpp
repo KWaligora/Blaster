@@ -46,6 +46,8 @@ ABSTCharacter::ABSTCharacter()
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	NetUpdateFrequency = 66.0f;
 	MinNetUpdateFrequency = 33.0f;
+
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 }
 
 void ABSTCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -439,6 +441,15 @@ void ABSTCharacter::Multicast_Eliminated_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
+
+	if (DissolveMaterialInstance != nullptr)
+	{
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(FName("Dissolve"), 0.55f);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(FName("Glow"), 200.0f);
+	}
+	StartDissolve();
 }
 
 void ABSTCharacter::OnRep_Health()
@@ -464,6 +475,24 @@ void ABSTCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDam
         	BSTGameMode->PlayerEliminated(this, BSTPlayerController, AttackerController);
         }
 	}	
+}
+
+void ABSTCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstance != nullptr)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(FName("Dissolve"), DissolveValue);
+	}	
+}
+
+void ABSTCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ABSTCharacter::UpdateDissolveMaterial);
+	if (DissolveCurve != nullptr && DissolveTimeline != nullptr)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
+	}
 }
 
 FVector ABSTCharacter::GetHitTarget() const
